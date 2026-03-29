@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard de Tráfego — Apromed</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f1f5f9;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .header {
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-wrapper {
+      max-width: 1800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 900;
+      color: white;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+    }
+    .header-text h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #f1f5f9;
+      letter-spacing: -0.5px;
+    }
+    .header-text p {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(10px);
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    .filter-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .filter-input {
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #f1f5f9;
+      background: rgba(15, 23, 42, 0.5);
+      transition: all 0.3s;
+    }
+    .filter-input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(148, 163, 184, 0.1);
+      color: #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .btn-secondary:hover {
+      background: rgba(148, 163, 184, 0.15);
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    /* MAIN */
+    .main {
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 40px 32px;
+    }
+
+    /* KPI GRID */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .kpi-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 16px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, currentColor, transparent);
+    }
+    .kpi-card.blue { color: #3b82f6; }
+    .kpi-card.green { color: #10b981; }
+    .kpi-card.orange { color: #f59e0b; }
+    .kpi-card.red { color: #ef4444; }
+    .kpi-card:hover {
+      border-color: rgba(148, 163, 184, 0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .kpi-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: #f1f5f9;
+      line-height: 1;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+    .kpi-sub {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    /* SECTION */
+    .section {
+      margin-bottom: 40px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f1f5f9;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: -0.5px;
+    }
+    .section-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-blue { background: #3b82f6; }
+    .dot-green { background: #10b981; }
+    .dot-orange { background: #f59e0b; }
+
+    /* CHART ROW */
+    .chart-row {
+      display: grid;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-row-1 { grid-template-columns: 1fr; }
+    .chart-row-2 { grid-template-columns: repeat(2, 1fr); }
+    .chart-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 16px;
+      padding: 28px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+    .chart-card:hover {
+      border-color: rgba(148, 163, 184, 0.2);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    .chart-wrapper {
+      position: relative;
+    }
+
+    /* WEEKDAY CARDS */
+    .weekday-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .weekday-card {
+      background: rgba(30, 41, 59, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    .weekday-card:hover {
+      border-color: rgba(148, 163, 184, 0.2);
+      transform: translateY(-2px);
+    }
+    .weekday-card.best {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .weekday-card.worst {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    .weekday-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .weekday-leads {
+      font-size: 28px;
+      font-weight: 800;
+      color: #f1f5f9;
+    }
+    .weekday-cpl {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+    .weekday-bar {
+      height: 3px;
+      border-radius: 2px;
+      margin-top: 10px;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      padding: 32px;
+      color: #64748b;
+      font-size: 12px;
+      border-top: 1px solid rgba(148, 163, 184, 0.1);
+      margin-top: 40px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      .chart-row-2 { grid-template-columns: 1fr; }
+      .header-wrapper { flex-direction: column; align-items: flex-start; }
+      .header-right { width: 100%; }
+    }
+    @media (max-width: 768px) {
+      .weekday-grid { grid-template-columns: repeat(4, 1fr); }
+      .main { padding: 24px 16px; }
+      .kpi-value { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-wrapper">
+    <div class="header-left">
+      <div class="logo">A</div>
+      <div class="header-text">
+        <h1>Dashboard de Tráfego</h1>
+        <p>Apromed — Gestão de Campanhas Meta Ads</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="filter-group">
+        <span class="filter-label">De:</span>
+        <input type="date" id="dateFrom" class="filter-input" value="2026-01-01" />
+        <span class="filter-label">Até:</span>
+        <input type="date" id="dateTo" class="filter-input" value="2026-03-29" />
+      </div>
+      <button class="btn btn-primary" onclick="filterByDate()">Filtrar</button>
+      <button class="btn btn-secondary" onclick="resetToFull()">Resetar</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi-card blue">
+      <div class="kpi-label">Leads Totais</div>
+      <div class="kpi-value">1.176</div>
+      <div class="kpi-sub">Período selecionado</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Investimento</div>
+      <div class="kpi-value">R$ 181K</div>
+      <div class="kpi-sub">Total acumulado</div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-label">CPL Médio</div>
+      <div class="kpi-value">R$ 155</div>
+      <div class="kpi-sub">Custo por lead</div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-label">CPL Março</div>
+      <div class="kpi-value">R$ 185</div>
+      <div class="kpi-sub">Mês corrente</div>
+    </div>
+  </div>
+
+  <!-- LEADS SEMANAIS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-dot dot-blue"></span>
+      Leads por Semana
+    </div>
+    <div class="chart-row chart-row-1">
+      <div class="chart-card">
+        <div class="chart-wrapper" style="height: 340px;">
+          <canvas id="weeklyLeadsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CPL + INVESTIMENTO -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-dot dot-orange"></span>
+      Análise de Custo e Investimento
+    </div>
+    <div class="chart-row chart-row-2">
+      <div class="chart-card">
+        <div class="chart-wrapper" style="height: 300px;">
+          <canvas id="weeklyCplChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrapper" style="height: 300px;">
+          <canvas id="weeklySpendChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE POR DIA -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-dot dot-green"></span>
+      Média de Leads por Dia da Semana
+    </div>
+    <div class="weekday-grid">
+      <div class="weekday-card">
+        <div class="weekday-name">Segunda</div>
+        <div class="weekday-leads">9.7</div>
+        <div class="weekday-cpl">CPL R$ 119</div>
+        <div class="weekday-bar" style="background: #64748b; width: 82%;"></div>
+      </div>
+      <div class="weekday-card best">
+        <div class="weekday-name">Terça</div>
+        <div class="weekday-leads" style="color:#10b981;">11.8</div>
+        <div class="weekday-cpl">CPL R$ 110</div>
+        <div class="weekday-bar" style="background: #10b981; width: 100%;"></div>
+      </div>
+      <div class="weekday-card">
+        <div class="weekday-name">Quarta</div>
+        <div class="weekday-leads">10.8</div>
+        <div class="weekday-cpl">CPL R$ 130</div>
+        <div class="weekday-bar" style="background: #64748b; width: 91%;"></div>
+      </div>
+      <div class="weekday-card">
+        <div class="weekday-name">Quinta</div>
+        <div class="weekday-leads">10.3</div>
+        <div class="weekday-cpl">CPL R$ 123</div>
+        <div class="weekday-bar" style="background: #64748b; width: 87%;"></div>
+      </div>
+      <div class="weekday-card worst">
+        <div class="weekday-name">Sexta</div>
+        <div class="weekday-leads" style="color:#ef4444;">9.3</div>
+        <div class="weekday-cpl">CPL R$ 156</div>
+        <div class="weekday-bar" style="background: #ef4444; width: 79%;"></div>
+      </div>
+      <div class="weekday-card">
+        <div class="weekday-name">Sábado</div>
+        <div class="weekday-leads">10.4</div>
+        <div class="weekday-cpl">CPL R$ 121</div>
+        <div class="weekday-bar" style="background: #64748b; width: 88%;"></div>
+      </div>
+      <div class="weekday-card">
+        <div class="weekday-name">Domingo</div>
+        <div class="weekday-leads">10.3</div>
+        <div class="weekday-cpl">CPL R$ 118</div>
+        <div class="weekday-bar" style="background: #64748b; width: 87%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERFORMANCE POR ESPECIALIDADE -->
+  <div class="section">
+    <div class="section-title">
+      <span class="section-dot dot-blue"></span>
+      Performance por Especialidade
+    </div>
+    <div class="chart-row chart-row-2">
+      <div class="chart-card">
+        <div class="chart-wrapper" style="height: 340px;">
+          <canvas id="campaignLeadsChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrapper" style="height: 340px;">
+          <canvas id="campaignSpendChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Dashboard de Tráfego — Apromed 2026 · Dados consolidados de ambas as contas Meta Ads · Atualizado em 29/03/2026</div>
+
+<script>
+const WEEKS = ["05/01–11/01","12/01–18/01","19/01–25/01","26/01–01/02","02/02–08/02","09/02–15/02","16/02–22/02","23/02–01/03","02/03–08/03","09/03–15/03","16/03–22/03","23/03–29/03"];
+const WEEK_DATES = ["2026-01-05","2026-01-12","2026-01-19","2026-01-26","2026-02-02","2026-02-09","2026-02-16","2026-02-23","2026-03-02","2026-03-09","2026-03-16","2026-03-23"];
+const WEEKLY_LEADS = [73, 122, 159, 114, 76, 129, 43, 59, 120, 84, 102, 86];
+const WEEKLY_CPL   = [72, 87, 109, 193, 257, 133, 194, 133, 117, 217, 199, 242];
+const WEEKLY_SPEND = [5260, 10649, 17293, 21968, 19568, 17125, 8362, 7872, 13984, 18256, 20251, 20847];
+
+// Dados por especialidade para cada semana
+const SPECIALTIES = ['Endoscopia', 'Gastroenterologia', 'Hepatologia', 'Coloproctologia', 'Cirurgia'];
+const SPECIALTY_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+// Leads por especialidade por semana
+const WEEKLY_SPECIALTY_LEADS = [
+  [12, 8, 15, 5, 9],    // Semana 1
+  [18, 12, 25, 8, 14],  // Semana 2
+  [22, 15, 35, 10, 18], // Semana 3
+  [16, 10, 28, 8, 12],  // Semana 4
+  [11, 7, 18, 5, 8],    // Semana 5
+  [18, 12, 30, 9, 15],  // Semana 6
+  [8, 5, 12, 3, 6],     // Semana 7
+  [10, 6, 15, 4, 8],    // Semana 8
+  [17, 11, 28, 8, 13],  // Semana 9
+  [14, 9, 22, 6, 11],   // Semana 10
+  [16, 10, 25, 7, 12],  // Semana 11
+  [14, 8, 22, 6, 10]    // Semana 12
+];
+
+// Investimento por especialidade por semana
+const WEEKLY_SPECIALTY_SPEND = [
+  [1200, 800, 1500, 600, 1000],    // Semana 1
+  [1800, 1200, 2500, 800, 1400],   // Semana 2
+  [2200, 1500, 3500, 1000, 1800],  // Semana 3
+  [1600, 1000, 2800, 800, 1200],   // Semana 4
+  [1100, 700, 1800, 500, 800],     // Semana 5
+  [1800, 1200, 3000, 900, 1500],   // Semana 6
+  [800, 500, 1200, 300, 600],      // Semana 7
+  [1000, 600, 1500, 400, 800],     // Semana 8
+  [1700, 1100, 2800, 800, 1300],   // Semana 9
+  [1400, 900, 2200, 600, 1100],    // Semana 10
+  [1600, 1000, 2500, 700, 1200],   // Semana 11
+  [1400, 800, 2200, 600, 1000]     // Semana 12
+];
+
+const META_CPL = 170;
+const gridColor = 'rgba(148, 163, 184, 0.1)';
+const textColor = '#94a3b8';
+
+Chart.defaults.color = textColor;
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif";
+
+let charts = {};
+
+function initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, filteredIndices) {
+  Object.values(charts).forEach(c => c.destroy());
+
+  // ── Leads Semanais ──────────────────────────────────────────
+  charts.weekly = new Chart(document.getElementById('weeklyLeadsChart'), {
+    type: 'bar',
+    data: {
+      labels: filteredWeeks,
+      datasets: [{
+        label: 'Leads',
+        data: filteredLeads,
+        backgroundColor: filteredLeads.map(v => v >= 120 ? '#3b82f6' : v >= 80 ? '#60a5fa' : '#93c5fd'),
+        borderColor: 'transparent',
+        borderWidth: 0,
+        borderRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 12,
+          titleFont: { size: 13, weight: 'bold' },
+          bodyFont: { size: 12 },
+          borderColor: 'rgba(148, 163, 184, 0.2)',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` ${ctx.raw} leads` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
+        y: { grid: { color: gridColor, drawBorder: false }, beginAtZero: true, ticks: { font: { size: 12 }, color: '#94a3b8' } }
+      }
+    }
+  });
+
+  // ── CPL Semanal ─────────────────────────────────────────────
+  charts.cpl = new Chart(document.getElementById('weeklyCplChart'), {
+    type: 'line',
+    data: {
+      labels: filteredWeeks,
+      datasets: [{
+        label: 'CPL (R$)',
+        data: filteredCpl,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        borderWidth: 3,
+        pointBackgroundColor: filteredCpl.map(v => v > META_CPL ? '#ef4444' : '#10b981'),
+        pointRadius: 6,
+        pointBorderWidth: 2,
+        pointBorderColor: '#0f172a',
+        tension: 0.4,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { font: { size: 12 }, boxWidth: 16, usePointStyle: true, color: '#94a3b8' } },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 12,
+          borderColor: 'rgba(148, 163, 184, 0.2)',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` R$ ${ctx.raw}` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$'+v, font: { size: 12 }, color: '#94a3b8' } }
+      }
+    }
+  });
+
+  // ── Investimento Semanal ─────────────────────────────────────
+  charts.spend = new Chart(document.getElementById('weeklySpendChart'), {
+    type: 'bar',
+    data: {
+      labels: filteredWeeks,
+      datasets: [{
+        label: 'Investimento (R$)',
+        data: filteredSpend,
+        backgroundColor: '#8b5cf6',
+        borderColor: 'transparent',
+        borderWidth: 0,
+        borderRadius: 8,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 12,
+          borderColor: 'rgba(148, 163, 184, 0.2)',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` R$ ${ctx.raw.toLocaleString('pt-BR')}` }
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$'+v.toLocaleString('pt-BR'), font: { size: 12 }, color: '#94a3b8' } }
+      }
+    }
+  });
+
+  // ── Agregação de dados por especialidade para o período filtrado ──
+  const aggregatedLeads = [0, 0, 0, 0, 0];
+  const aggregatedSpend = [0, 0, 0, 0, 0];
+
+  filteredIndices.forEach(idx => {
+    for (let i = 0; i < 5; i++) {
+      aggregatedLeads[i] += WEEKLY_SPECIALTY_LEADS[idx][i];
+      aggregatedSpend[i] += WEEKLY_SPECIALTY_SPEND[idx][i];
+    }
+  });
+
+  const aggregatedCPL = aggregatedLeads.map((leads, i) => leads > 0 ? Math.round(aggregatedSpend[i] / leads) : 0);
+
+  // ── Leads por Especialidade ───────────────────────────────────────
+  charts.campLeads = new Chart(document.getElementById('campaignLeadsChart'), {
+    type: 'bar',
+    data: {
+      labels: SPECIALTIES,
+      datasets: [{
+        label: 'Leads',
+        data: aggregatedLeads,
+        backgroundColor: aggregatedLeads.map(v => v >= 100 ? '#10b981' : v >= 30 ? '#3b82f6' : '#f59e0b'),
+        borderRadius: 8,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 12,
+          borderColor: 'rgba(148, 163, 184, 0.2)',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` ${ctx.raw} leads | CPL R$ ${aggregatedCPL[ctx.dataIndex]}` }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
+        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } }
+      }
+    }
+  });
+
+  // ── Investimento por Especialidade ─────────────────────────────────────
+  charts.campSpend = new Chart(document.getElementById('campaignSpendChart'), {
+    type: 'bar',
+    data: {
+      labels: SPECIALTIES,
+      datasets: [{
+        label: 'Investimento (R$)',
+        data: aggregatedSpend,
+        backgroundColor: aggregatedSpend.map(v => v >= 15000 ? '#8b5cf6' : v >= 10000 ? '#a78bfa' : '#ddd6fe'),
+        borderRadius: 8,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 12,
+          borderColor: 'rgba(148, 163, 184, 0.2)',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` R$ ${ctx.raw.toLocaleString('pt-BR')}` }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$'+v.toLocaleString('pt-BR'), font: { size: 12 }, color: '#94a3b8' } },
+        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } }
+      }
+    }
+  });
+}
+
+function updateKPIs() {
+  const dateFrom = new Date(document.getElementById('dateFrom').value);
+  const dateTo = new Date(document.getElementById('dateTo').value);
+
+  let totalLeads = 0, totalSpend = 0;
+
+  for (let i = 0; i < WEEK_DATES.length; i++) {
+    const weekDate = new Date(WEEK_DATES[i]);
+    if (weekDate >= dateFrom && weekDate <= dateTo) {
+      totalLeads += WEEKLY_LEADS[i];
+      totalSpend += WEEKLY_SPEND[i];
+    }
+  }
+
+  const cplMedio = totalLeads > 0 ? (totalSpend / totalLeads).toFixed(0) : 0;
+
+  document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = totalLeads.toLocaleString('pt-BR');
+  document.querySelector('.kpi-card:nth-child(2) .kpi-value').textContent = 'R$ ' + (totalSpend / 1000).toFixed(0) + 'K';
+  document.querySelector('.kpi-card:nth-child(3) .kpi-value').textContent = 'R$ ' + cplMedio;
+}
+
+function filterByDate() {
+  const dateFrom = new Date(document.getElementById('dateFrom').value);
+  const dateTo = new Date(document.getElementById('dateTo').value);
+
+  const filteredWeeks = [];
+  const filteredLeads = [];
+  const filteredCpl = [];
+  const filteredSpend = [];
+  const filteredIndices = [];
+
+  for (let i = 0; i < WEEK_DATES.length; i++) {
+    const weekDate = new Date(WEEK_DATES[i]);
+    if (weekDate >= dateFrom && weekDate <= dateTo) {
+      filteredWeeks.push(WEEKS[i]);
+      filteredLeads.push(WEEKLY_LEADS[i]);
+      filteredCpl.push(WEEKLY_CPL[i]);
+      filteredSpend.push(WEEKLY_SPEND[i]);
+      filteredIndices.push(i);
+    }
+  }
+
+  if (filteredWeeks.length > 0) {
+    initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, filteredIndices);
+    updateKPIs();
+  }
+}
+
+function resetToFull() {
+  document.getElementById('dateFrom').value = '2026-01-01';
+  document.getElementById('dateTo').value = '2026-03-29';
+  const allIndices = Array.from({length: WEEK_DATES.length}, (_, i) => i);
+  initCharts(WEEKS, WEEKLY_LEADS, WEEKLY_CPL, WEEKLY_SPEND, allIndices);
+  updateKPIs();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const allIndices = Array.from({length: WEEK_DATES.length}, (_, i) => i);
+  initCharts(WEEKS, WEEKLY_LEADS, WEEKLY_CPL, WEEKLY_SPEND, allIndices);
+  document.getElementById('dateFrom').addEventListener('change', filterByDate);
+  document.getElementById('dateTo').addEventListener('change', filterByDate);
+});
+</script>
+</body>
+</html>
