@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard de Tráfego — Apromed</title>
+  <title>Dashboard de Tráfego — APROMED</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -332,7 +332,7 @@
         <span class="filter-label">Até:</span>
         <input type="date" id="dateTo" class="filter-input" value="2026-03-29" />
       </div>
-      <button class="btn btn-primary" onclick="filterByDate()">Filtrar</button>
+      <button class="btn btn-primary" onclick="applyFilter()">Filtrar</button>
       <button class="btn btn-secondary" onclick="resetToFull()">Resetar</button>
     </div>
   </div>
@@ -342,24 +342,24 @@
 
   <!-- KPI CARDS -->
   <div class="kpi-grid">
-    <div class="kpi-card blue">
+    <div class="kpi-card blue" id="kpi-leads">
       <div class="kpi-label">Leads Totais</div>
-      <div class="kpi-value">1.176</div>
+      <div class="kpi-value">—</div>
       <div class="kpi-sub">Período selecionado</div>
     </div>
-    <div class="kpi-card green">
+    <div class="kpi-card green" id="kpi-spend">
       <div class="kpi-label">Investimento</div>
-      <div class="kpi-value">R$ 181K</div>
+      <div class="kpi-value">—</div>
       <div class="kpi-sub">Total acumulado</div>
     </div>
-    <div class="kpi-card orange">
+    <div class="kpi-card orange" id="kpi-cpl">
       <div class="kpi-label">CPL Médio</div>
-      <div class="kpi-value">R$ 155</div>
+      <div class="kpi-value">—</div>
       <div class="kpi-sub">Custo por lead</div>
     </div>
-    <div class="kpi-card red">
+    <div class="kpi-card red" id="kpi-cpl-mar">
       <div class="kpi-label">CPL Março</div>
-      <div class="kpi-value">R$ 185</div>
+      <div class="kpi-value">—</div>
       <div class="kpi-sub">Mês corrente</div>
     </div>
   </div>
@@ -405,49 +405,8 @@
       <span class="section-dot dot-green"></span>
       Média de Leads por Dia da Semana
     </div>
-    <div class="weekday-grid">
-      <div class="weekday-card">
-        <div class="weekday-name">Segunda</div>
-        <div class="weekday-leads">9.7</div>
-        <div class="weekday-cpl">CPL R$ 119</div>
-        <div class="weekday-bar" style="background: #64748b; width: 82%;"></div>
-      </div>
-      <div class="weekday-card best">
-        <div class="weekday-name">Terça</div>
-        <div class="weekday-leads" style="color:#10b981;">11.8</div>
-        <div class="weekday-cpl">CPL R$ 110</div>
-        <div class="weekday-bar" style="background: #10b981; width: 100%;"></div>
-      </div>
-      <div class="weekday-card">
-        <div class="weekday-name">Quarta</div>
-        <div class="weekday-leads">10.8</div>
-        <div class="weekday-cpl">CPL R$ 130</div>
-        <div class="weekday-bar" style="background: #64748b; width: 91%;"></div>
-      </div>
-      <div class="weekday-card">
-        <div class="weekday-name">Quinta</div>
-        <div class="weekday-leads">10.3</div>
-        <div class="weekday-cpl">CPL R$ 123</div>
-        <div class="weekday-bar" style="background: #64748b; width: 87%;"></div>
-      </div>
-      <div class="weekday-card worst">
-        <div class="weekday-name">Sexta</div>
-        <div class="weekday-leads" style="color:#ef4444;">9.3</div>
-        <div class="weekday-cpl">CPL R$ 156</div>
-        <div class="weekday-bar" style="background: #ef4444; width: 79%;"></div>
-      </div>
-      <div class="weekday-card">
-        <div class="weekday-name">Sábado</div>
-        <div class="weekday-leads">10.4</div>
-        <div class="weekday-cpl">CPL R$ 121</div>
-        <div class="weekday-bar" style="background: #64748b; width: 88%;"></div>
-      </div>
-      <div class="weekday-card">
-        <div class="weekday-name">Domingo</div>
-        <div class="weekday-leads">10.3</div>
-        <div class="weekday-cpl">CPL R$ 118</div>
-        <div class="weekday-bar" style="background: #64748b; width: 87%;"></div>
-      </div>
+    <div class="weekday-grid" id="weekdayGrid">
+      <!-- Rendered dynamically -->
     </div>
   </div>
 
@@ -476,69 +435,281 @@
 <div class="footer">Dashboard de Tráfego — Apromed 2026 · Dados consolidados de ambas as contas Meta Ads · Atualizado em 29/03/2026</div>
 
 <script>
-const WEEKS = ["05/01–11/01","12/01–18/01","19/01–25/01","26/01–01/02","02/02–08/02","09/02–15/02","16/02–22/02","23/02–01/03","02/03–08/03","09/03–15/03","16/03–22/03","23/03–29/03"];
-const WEEK_DATES = ["2026-01-05","2026-01-12","2026-01-19","2026-01-26","2026-02-02","2026-02-09","2026-02-16","2026-02-23","2026-03-02","2026-03-09","2026-03-16","2026-03-23"];
-const WEEKLY_LEADS = [73, 122, 159, 114, 76, 129, 43, 59, 120, 84, 102, 86];
-const WEEKLY_CPL   = [72, 87, 109, 193, 257, 133, 194, 133, 117, 217, 199, 242];
-const WEEKLY_SPEND = [5260, 10649, 17293, 21968, 19568, 17125, 8362, 7872, 13984, 18256, 20251, 20847];
+// ══════════════════════════════════════════════════════════════
+// DATA — Corrected from real Meta Ads CSVs
+// ══════════════════════════════════════════════════════════════
 
-// Dados por especialidade para cada semana
-const SPECIALTIES = ['Endoscopia', 'Gastroenterologia', 'Hepatologia', 'Coloproctologia', 'Cirurgia'];
-const SPECIALTY_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-
-// Leads por especialidade por semana
-const WEEKLY_SPECIALTY_LEADS = [
-  [12, 8, 15, 5, 9],    // Semana 1
-  [18, 12, 25, 8, 14],  // Semana 2
-  [22, 15, 35, 10, 18], // Semana 3
-  [16, 10, 28, 8, 12],  // Semana 4
-  [11, 7, 18, 5, 8],    // Semana 5
-  [18, 12, 30, 9, 15],  // Semana 6
-  [8, 5, 12, 3, 6],     // Semana 7
-  [10, 6, 15, 4, 8],    // Semana 8
-  [17, 11, 28, 8, 13],  // Semana 9
-  [14, 9, 22, 6, 11],   // Semana 10
-  [16, 10, 25, 7, 12],  // Semana 11
-  [14, 8, 22, 6, 10]    // Semana 12
+const WEEKS = [
+  "05/01–11/01","12/01–18/01","19/01–25/01","26/01–01/02",
+  "02/02–08/02","09/02–15/02","16/02–22/02","23/02–01/03",
+  "02/03–08/03","09/03–15/03","16/03–22/03","23/03–29/03"
 ];
 
-// Investimento por especialidade por semana
-const WEEKLY_SPECIALTY_SPEND = [
-  [1200, 800, 1500, 600, 1000],    // Semana 1
-  [1800, 1200, 2500, 800, 1400],   // Semana 2
-  [2200, 1500, 3500, 1000, 1800],  // Semana 3
-  [1600, 1000, 2800, 800, 1200],   // Semana 4
-  [1100, 700, 1800, 500, 800],     // Semana 5
-  [1800, 1200, 3000, 900, 1500],   // Semana 6
-  [800, 500, 1200, 300, 600],      // Semana 7
-  [1000, 600, 1500, 400, 800],     // Semana 8
-  [1700, 1100, 2800, 800, 1300],   // Semana 9
-  [1400, 900, 2200, 600, 1100],    // Semana 10
-  [1600, 1000, 2500, 700, 1200],   // Semana 11
-  [1400, 800, 2200, 600, 1000]     // Semana 12
+// Start date of each week (Monday)
+const WEEK_DATES = [
+  "2026-01-05","2026-01-12","2026-01-19","2026-01-26",
+  "2026-02-02","2026-02-09","2026-02-16","2026-02-23",
+  "2026-03-02","2026-03-09","2026-03-16","2026-03-23"
 ];
 
-const META_CPL = 170;
+// Real totals: Jan-Feb = 747 leads / R$107,029 | Mar = 429 leads / R$75,233
+// RMKT + WPP absorbed into specialties. Grand: 1176 leads / R$182,262
+const WEEKLY_LEADS = [70, 118, 154, 110, 73, 124, 41, 57, 131, 92, 112, 94];
+const WEEKLY_SPEND = [5208, 10544, 17122, 21751, 19375, 16956, 8279, 7794, 14345, 18728, 20774, 21386];
+const WEEKLY_CPL   = [74, 89, 111, 198, 265, 137, 202, 137, 110, 204, 185, 228];
+
+// Specialties — REAL data from CSVs
+const SPECIALTIES = ['Endoscopia','Gastro','Hepatologia','Cirurgia','Coloproctologia'];
+
+// Full period totals per specialty (RMKT + WPP leads absorbed into each)
+const SPEC_DATA = {
+  'Endoscopia':      { jf_leads: 195, jf_spend: 18365.15, mar_leads: 151, mar_spend: 16643.05 },
+  'Gastro':          { jf_leads: 212, jf_spend: 26501.73, mar_leads:  89, mar_spend: 13958.29 },
+  'Hepatologia':     { jf_leads: 108, jf_spend: 19795.29, mar_leads:  86, mar_spend: 20052.36 },
+  'Cirurgia':        { jf_leads: 107, jf_spend: 22670.81, mar_leads:  65, mar_spend: 18208.29 },
+  'Coloproctologia': { jf_leads: 125, jf_spend: 19696.01, mar_leads:  38, mar_spend:  6371.17 },
+};
+
+// Weekly distribution weights for specialties (proportional to their share)
+// Jan-Feb weeks (0-7): distribute jf totals
+// March weeks (8-11): distribute mar totals
+const WEEK_WEIGHTS_JF  = [70, 117, 153, 109, 73, 124, 41, 57]; // same shape as weekly leads
+const WEEK_WEIGHTS_MAR = [131, 92, 112, 94];
+
+function distributeProportionally(total, weights) {
+  const sum = weights.reduce((a, b) => a + b, 0);
+  if (sum === 0) return weights.map(() => 0);
+  const raw = weights.map(w => total * w / sum);
+  const rounded = raw.map(v => Math.round(v));
+  let diff = Math.round(total) - rounded.reduce((a, b) => a + b, 0);
+  // Fix rounding: add/subtract from largest
+  if (diff !== 0) {
+    const maxIdx = rounded.indexOf(Math.max(...rounded));
+    rounded[maxIdx] += diff;
+  }
+  return rounded;
+}
+
+// Build per-specialty per-week data
+function buildSpecWeekly() {
+  const result = {};
+  for (const spec of SPECIALTIES) {
+    const d = SPEC_DATA[spec];
+    const jfLeads = distributeProportionally(d.jf_leads, WEEK_WEIGHTS_JF);
+    const marLeads = distributeProportionally(d.mar_leads, WEEK_WEIGHTS_MAR);
+    const jfSpend = distributeProportionally(d.jf_spend, WEEK_WEIGHTS_JF);
+    const marSpend = distributeProportionally(d.mar_spend, WEEK_WEIGHTS_MAR);
+    result[spec] = {
+      leads: [...jfLeads, ...marLeads],
+      spend: [...jfSpend, ...marSpend]
+    };
+  }
+  return result;
+}
+
+const SPEC_WEEKLY = buildSpecWeekly();
+
+// Weekday distribution (estimated proportional from original pattern, 
+// will recompute dynamically based on filtered period)
+// Average leads per weekday across Q1 — proportional weights
+const WEEKDAY_NAMES = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+const WEEKDAY_LEAD_WEIGHTS = [9.7, 11.8, 10.8, 10.3, 9.3, 10.4, 10.3];
+const WEEKDAY_CPL_BASE     = [119, 110, 130, 123, 156, 121, 118];
+
+// ══════════════════════════════════════════════════════════════
+// CHART CONFIG
+// ══════════════════════════════════════════════════════════════
+
 const gridColor = 'rgba(148, 163, 184, 0.1)';
 const textColor = '#94a3b8';
-
 Chart.defaults.color = textColor;
 Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif";
 
 let charts = {};
 
-function initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, filteredIndices) {
-  Object.values(charts).forEach(c => c.destroy());
+// ══════════════════════════════════════════════════════════════
+// FILTERING & RENDERING
+// ══════════════════════════════════════════════════════════════
 
-  // ── Leads Semanais ──────────────────────────────────────────
+function getFilteredIndices() {
+  const dateFrom = new Date(document.getElementById('dateFrom').value);
+  const dateTo = new Date(document.getElementById('dateTo').value);
+  const indices = [];
+  for (let i = 0; i < WEEK_DATES.length; i++) {
+    const wd = new Date(WEEK_DATES[i]);
+    if (wd >= dateFrom && wd <= dateTo) indices.push(i);
+  }
+  return indices;
+}
+
+function filterData(arr, indices) {
+  return indices.map(i => arr[i]);
+}
+
+function updateKPIs(indices) {
+  const totalLeads = indices.reduce((s, i) => s + WEEKLY_LEADS[i], 0);
+  const totalSpend = indices.reduce((s, i) => s + WEEKLY_SPEND[i], 0);
+  const cplMedio = totalLeads > 0 ? Math.round(totalSpend / totalLeads) : 0;
+
+  document.querySelector('#kpi-leads .kpi-value').textContent = totalLeads.toLocaleString('pt-BR');
+
+  const spendK = totalSpend / 1000;
+  document.querySelector('#kpi-spend .kpi-value').textContent =
+    spendK >= 1000 ? 'R$ ' + (spendK / 1000).toFixed(1) + 'M' : 'R$ ' + Math.round(spendK) + 'K';
+
+  document.querySelector('#kpi-cpl .kpi-value').textContent = 'R$ ' + cplMedio;
+
+  // CPL Março — always from march weeks (8-11)
+  const marIndices = indices.filter(i => i >= 8);
+  const marLeads = marIndices.reduce((s, i) => s + WEEKLY_LEADS[i], 0);
+  const marSpend = marIndices.reduce((s, i) => s + WEEKLY_SPEND[i], 0);
+  const cplMar = marLeads > 0 ? Math.round(marSpend / marLeads) : 0;
+
+  const marCard = document.querySelector('#kpi-cpl-mar');
+  if (marIndices.length > 0) {
+    marCard.style.display = '';
+    marCard.querySelector('.kpi-value').textContent = 'R$ ' + cplMar;
+  } else {
+    marCard.style.display = 'none';
+  }
+}
+
+function updateWeekdayCards(indices) {
+  const totalLeads = indices.reduce((s, i) => s + WEEKLY_LEADS[i], 0);
+  const totalSpend = indices.reduce((s, i) => s + WEEKLY_SPEND[i], 0);
+  const numWeeks = indices.length || 1;
+
+  // Distribute total leads across weekdays proportionally
+  const wdTotal = WEEKDAY_LEAD_WEIGHTS.reduce((a, b) => a + b, 0);
+  const avgLeads = WEEKDAY_LEAD_WEIGHTS.map(w => {
+    const weekdayTotal = Math.round(totalLeads * w / wdTotal);
+    return +(weekdayTotal / numWeeks).toFixed(1);
+  });
+
+  // Scale CPLs relative to overall CPL
+  const overallCpl = totalLeads > 0 ? totalSpend / totalLeads : 150;
+  const baseCplAvg = WEEKDAY_CPL_BASE.reduce((a, b) => a + b, 0) / 7;
+  const wdCpl = WEEKDAY_CPL_BASE.map(c => Math.round(c * overallCpl / baseCplAvg));
+
+  const maxLeads = Math.max(...avgLeads);
+  const minLeads = Math.min(...avgLeads);
+  const bestIdx = avgLeads.indexOf(maxLeads);
+  const worstIdx = avgLeads.indexOf(minLeads);
+
+  const grid = document.getElementById('weekdayGrid');
+  grid.innerHTML = '';
+
+  WEEKDAY_NAMES.forEach((name, i) => {
+    const card = document.createElement('div');
+    card.className = 'weekday-card' + (i === bestIdx ? ' best' : i === worstIdx ? ' worst' : '');
+
+    const barPct = maxLeads > 0 ? Math.round(avgLeads[i] / maxLeads * 100) : 0;
+    const barColor = i === bestIdx ? '#10b981' : i === worstIdx ? '#ef4444' : '#64748b';
+    const valColor = i === bestIdx ? 'color:#10b981;' : i === worstIdx ? 'color:#ef4444;' : '';
+
+    card.innerHTML = `
+      <div class="weekday-name">${name}</div>
+      <div class="weekday-leads" style="${valColor}">${avgLeads[i]}</div>
+      <div class="weekday-cpl">CPL R$ ${wdCpl[i]}</div>
+      <div class="weekday-bar" style="background:${barColor}; width:${barPct}%;"></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function updateSpecialtyCharts(indices) {
+  const aggLeads = SPECIALTIES.map(s => indices.reduce((sum, i) => sum + SPEC_WEEKLY[s].leads[i], 0));
+  const aggSpend = SPECIALTIES.map(s => indices.reduce((sum, i) => sum + SPEC_WEEKLY[s].spend[i], 0));
+  const aggCPL = aggLeads.map((l, i) => l > 0 ? Math.round(aggSpend[i] / l) : 0);
+
+  if (charts.campLeads) charts.campLeads.destroy();
+  if (charts.campSpend) charts.campSpend.destroy();
+
+  charts.campLeads = new Chart(document.getElementById('campaignLeadsChart'), {
+    type: 'bar',
+    data: {
+      labels: SPECIALTIES,
+      datasets: [{
+        label: 'Leads',
+        data: aggLeads,
+        backgroundColor: aggLeads.map(v => v >= 200 ? '#10b981' : v >= 100 ? '#3b82f6' : '#f59e0b'),
+        borderRadius: 8,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 12,
+          borderColor: 'rgba(148, 163, 184, 0.2)',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` ${ctx.raw} leads | CPL R$ ${aggCPL[ctx.dataIndex]}` }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { font: { size: 12 }, color: textColor } },
+        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: textColor } }
+      }
+    }
+  });
+
+  charts.campSpend = new Chart(document.getElementById('campaignSpendChart'), {
+    type: 'bar',
+    data: {
+      labels: SPECIALTIES,
+      datasets: [{
+        label: 'Investimento (R$)',
+        data: aggSpend,
+        backgroundColor: aggSpend.map(v => v >= 30000 ? '#8b5cf6' : v >= 15000 ? '#a78bfa' : '#ddd6fe'),
+        borderRadius: 8,
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15, 23, 42, 0.95)',
+          padding: 12,
+          borderColor: 'rgba(148, 163, 184, 0.2)',
+          borderWidth: 1,
+          callbacks: { label: ctx => ` R$ ${ctx.raw.toLocaleString('pt-BR')}` }
+        }
+      },
+      scales: {
+        x: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$' + v.toLocaleString('pt-BR'), font: { size: 12 }, color: textColor } },
+        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: textColor } }
+      }
+    }
+  });
+}
+
+function updateWeeklyCharts(indices) {
+  const fWeeks = filterData(WEEKS, indices);
+  const fLeads = filterData(WEEKLY_LEADS, indices);
+  const fCpl   = filterData(WEEKLY_CPL, indices);
+  const fSpend = filterData(WEEKLY_SPEND, indices);
+
+  if (charts.weekly) charts.weekly.destroy();
+  if (charts.cpl) charts.cpl.destroy();
+  if (charts.spend) charts.spend.destroy();
+
+  const META_CPL = 170;
+
   charts.weekly = new Chart(document.getElementById('weeklyLeadsChart'), {
     type: 'bar',
     data: {
-      labels: filteredWeeks,
+      labels: fWeeks,
       datasets: [{
         label: 'Leads',
-        data: filteredLeads,
-        backgroundColor: filteredLeads.map(v => v >= 120 ? '#3b82f6' : v >= 80 ? '#60a5fa' : '#93c5fd'),
+        data: fLeads,
+        backgroundColor: fLeads.map(v => v >= 120 ? '#3b82f6' : v >= 80 ? '#60a5fa' : '#93c5fd'),
         borderColor: 'transparent',
         borderWidth: 0,
         borderRadius: 8,
@@ -559,24 +730,23 @@ function initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, fi
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
-        y: { grid: { color: gridColor, drawBorder: false }, beginAtZero: true, ticks: { font: { size: 12 }, color: '#94a3b8' } }
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: textColor } },
+        y: { grid: { color: gridColor, drawBorder: false }, beginAtZero: true, ticks: { font: { size: 12 }, color: textColor } }
       }
     }
   });
 
-  // ── CPL Semanal ─────────────────────────────────────────────
   charts.cpl = new Chart(document.getElementById('weeklyCplChart'), {
     type: 'line',
     data: {
-      labels: filteredWeeks,
+      labels: fWeeks,
       datasets: [{
         label: 'CPL (R$)',
-        data: filteredCpl,
+        data: fCpl,
         borderColor: '#f59e0b',
         backgroundColor: 'rgba(245, 158, 11, 0.1)',
         borderWidth: 3,
-        pointBackgroundColor: filteredCpl.map(v => v > META_CPL ? '#ef4444' : '#10b981'),
+        pointBackgroundColor: fCpl.map(v => v > META_CPL ? '#ef4444' : '#10b981'),
         pointRadius: 6,
         pointBorderWidth: 2,
         pointBorderColor: '#0f172a',
@@ -587,7 +757,7 @@ function initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, fi
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { font: { size: 12 }, boxWidth: 16, usePointStyle: true, color: '#94a3b8' } },
+        legend: { labels: { font: { size: 12 }, boxWidth: 16, usePointStyle: true, color: textColor } },
         tooltip: {
           backgroundColor: 'rgba(15, 23, 42, 0.95)',
           padding: 12,
@@ -597,20 +767,19 @@ function initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, fi
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
-        y: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$'+v, font: { size: 12 }, color: '#94a3b8' } }
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: textColor } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$' + v, font: { size: 12 }, color: textColor } }
       }
     }
   });
 
-  // ── Investimento Semanal ─────────────────────────────────────
   charts.spend = new Chart(document.getElementById('weeklySpendChart'), {
     type: 'bar',
     data: {
-      labels: filteredWeeks,
+      labels: fWeeks,
       datasets: [{
         label: 'Investimento (R$)',
-        data: filteredSpend,
+        data: fSpend,
         backgroundColor: '#8b5cf6',
         borderColor: 'transparent',
         borderWidth: 0,
@@ -630,153 +799,40 @@ function initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, fi
         }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
-        y: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$'+v.toLocaleString('pt-BR'), font: { size: 12 }, color: '#94a3b8' } }
-      }
-    }
-  });
-
-  // ── Agregação de dados por especialidade para o período filtrado ──
-  const aggregatedLeads = [0, 0, 0, 0, 0];
-  const aggregatedSpend = [0, 0, 0, 0, 0];
-
-  filteredIndices.forEach(idx => {
-    for (let i = 0; i < 5; i++) {
-      aggregatedLeads[i] += WEEKLY_SPECIALTY_LEADS[idx][i];
-      aggregatedSpend[i] += WEEKLY_SPECIALTY_SPEND[idx][i];
-    }
-  });
-
-  const aggregatedCPL = aggregatedLeads.map((leads, i) => leads > 0 ? Math.round(aggregatedSpend[i] / leads) : 0);
-
-  // ── Leads por Especialidade ───────────────────────────────────────
-  charts.campLeads = new Chart(document.getElementById('campaignLeadsChart'), {
-    type: 'bar',
-    data: {
-      labels: SPECIALTIES,
-      datasets: [{
-        label: 'Leads',
-        data: aggregatedLeads,
-        backgroundColor: aggregatedLeads.map(v => v >= 100 ? '#10b981' : v >= 30 ? '#3b82f6' : '#f59e0b'),
-        borderRadius: 8,
-        borderWidth: 0,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          padding: 12,
-          borderColor: 'rgba(148, 163, 184, 0.2)',
-          borderWidth: 1,
-          callbacks: { label: ctx => ` ${ctx.raw} leads | CPL R$ ${aggregatedCPL[ctx.dataIndex]}` }
-        }
-      },
-      scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } },
-        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } }
-      }
-    }
-  });
-
-  // ── Investimento por Especialidade ─────────────────────────────────────
-  charts.campSpend = new Chart(document.getElementById('campaignSpendChart'), {
-    type: 'bar',
-    data: {
-      labels: SPECIALTIES,
-      datasets: [{
-        label: 'Investimento (R$)',
-        data: aggregatedSpend,
-        backgroundColor: aggregatedSpend.map(v => v >= 15000 ? '#8b5cf6' : v >= 10000 ? '#a78bfa' : '#ddd6fe'),
-        borderRadius: 8,
-        borderWidth: 0,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.95)',
-          padding: 12,
-          borderColor: 'rgba(148, 163, 184, 0.2)',
-          borderWidth: 1,
-          callbacks: { label: ctx => ` R$ ${ctx.raw.toLocaleString('pt-BR')}` }
-        }
-      },
-      scales: {
-        x: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$'+v.toLocaleString('pt-BR'), font: { size: 12 }, color: '#94a3b8' } },
-        y: { grid: { display: false }, ticks: { font: { size: 12 }, color: '#94a3b8' } }
+        x: { grid: { display: false }, ticks: { font: { size: 12 }, color: textColor } },
+        y: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$' + v.toLocaleString('pt-BR'), font: { size: 12 }, color: textColor } }
       }
     }
   });
 }
 
-function updateKPIs() {
-  const dateFrom = new Date(document.getElementById('dateFrom').value);
-  const dateTo = new Date(document.getElementById('dateTo').value);
+// ══════════════════════════════════════════════════════════════
+// MAIN RENDER
+// ══════════════════════════════════════════════════════════════
 
-  let totalLeads = 0, totalSpend = 0;
-
-  for (let i = 0; i < WEEK_DATES.length; i++) {
-    const weekDate = new Date(WEEK_DATES[i]);
-    if (weekDate >= dateFrom && weekDate <= dateTo) {
-      totalLeads += WEEKLY_LEADS[i];
-      totalSpend += WEEKLY_SPEND[i];
-    }
-  }
-
-  const cplMedio = totalLeads > 0 ? (totalSpend / totalLeads).toFixed(0) : 0;
-
-  document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = totalLeads.toLocaleString('pt-BR');
-  document.querySelector('.kpi-card:nth-child(2) .kpi-value').textContent = 'R$ ' + (totalSpend / 1000).toFixed(0) + 'K';
-  document.querySelector('.kpi-card:nth-child(3) .kpi-value').textContent = 'R$ ' + cplMedio;
+function renderAll() {
+  const indices = getFilteredIndices();
+  if (indices.length === 0) return;
+  updateKPIs(indices);
+  updateWeeklyCharts(indices);
+  updateWeekdayCards(indices);
+  updateSpecialtyCharts(indices);
 }
 
-function filterByDate() {
-  const dateFrom = new Date(document.getElementById('dateFrom').value);
-  const dateTo = new Date(document.getElementById('dateTo').value);
-
-  const filteredWeeks = [];
-  const filteredLeads = [];
-  const filteredCpl = [];
-  const filteredSpend = [];
-  const filteredIndices = [];
-
-  for (let i = 0; i < WEEK_DATES.length; i++) {
-    const weekDate = new Date(WEEK_DATES[i]);
-    if (weekDate >= dateFrom && weekDate <= dateTo) {
-      filteredWeeks.push(WEEKS[i]);
-      filteredLeads.push(WEEKLY_LEADS[i]);
-      filteredCpl.push(WEEKLY_CPL[i]);
-      filteredSpend.push(WEEKLY_SPEND[i]);
-      filteredIndices.push(i);
-    }
-  }
-
-  if (filteredWeeks.length > 0) {
-    initCharts(filteredWeeks, filteredLeads, filteredCpl, filteredSpend, filteredIndices);
-    updateKPIs();
-  }
+function applyFilter() {
+  renderAll();
 }
 
 function resetToFull() {
   document.getElementById('dateFrom').value = '2026-01-01';
   document.getElementById('dateTo').value = '2026-03-29';
-  const allIndices = Array.from({length: WEEK_DATES.length}, (_, i) => i);
-  initCharts(WEEKS, WEEKLY_LEADS, WEEKLY_CPL, WEEKLY_SPEND, allIndices);
-  updateKPIs();
+  renderAll();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const allIndices = Array.from({length: WEEK_DATES.length}, (_, i) => i);
-  initCharts(WEEKS, WEEKLY_LEADS, WEEKLY_CPL, WEEKLY_SPEND, allIndices);
-  document.getElementById('dateFrom').addEventListener('change', filterByDate);
-  document.getElementById('dateTo').addEventListener('change', filterByDate);
+  renderAll();
+  document.getElementById('dateFrom').addEventListener('change', renderAll);
+  document.getElementById('dateTo').addEventListener('change', renderAll);
 });
 </script>
 </body>
