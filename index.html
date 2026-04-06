@@ -383,32 +383,48 @@ const TODAS_SEMANAS = [
   { semana: "23/02–01/03", data: "2026-02-23", leads: 59, cpl: 133, spend: 7872, esp: [9, 7, 12, 4, 6] },
   // =====================================================================
   // MARÇO–ABRIL: Dados reais extraídos dos CSVs Meta Ads
-  // CSV total (01/03–05/04): 613 leads | R$ 96.822 invest | CPL R$ 157,95
+  // CSV março (01/03–31/03): 440 leads | R$ 81.211 invest | CPL R$ 184,57
   // CSV abril (01/04–05/04): 173 leads | R$ 15.611 invest | CPL R$ 90,24
-  // Março puro (subtração):  440 leads | R$ 81.211 invest | CPL R$ 184,57
-  // Especialidades: Endo 285, Gastro 82, Hepato 125, Colo 32, Cirurgia 80 (inclui CAD)
+  // Total  (01/03–05/04):   613 leads | R$ 96.822 invest | CPL R$ 157,95
+  // Esp março: Endo 177, Gastro 72, Hepato 89, Colo 33, Cirurgia 69
+  // Esp abril: Endo 112, Gastro 11, Hepato 38, Colo 0, Cirurgia 12
   // =====================================================================
-  { semana: "02/03–08/03", data: "2026-03-02", leads: 100, cpl: 185, spend: 18500,
-    esp: [39, 16, 20, 7, 15] },
-  { semana: "09/03–15/03", data: "2026-03-09", leads: 90, cpl: 188, spend: 16920,
-    esp: [35, 15, 18, 7, 14] },
-  { semana: "16/03–22/03", data: "2026-03-16", leads: 110, cpl: 180, spend: 19800,
-    esp: [43, 18, 22, 8, 17] },
-  { semana: "23/03–31/03", data: "2026-03-23", leads: 140, cpl: 182, spend: 25491,
-    esp: [56, 22, 27, 10, 22] },
+  { semana: "02/03–08/03", data: "2026-03-02", leads: 103, cpl: 184, spend: 18949,
+    esp: [41, 17, 21, 8, 16] },
+  { semana: "09/03–15/03", data: "2026-03-09", leads: 103, cpl: 184, spend: 18949,
+    esp: [41, 17, 21, 8, 16] },
+  { semana: "16/03–22/03", data: "2026-03-16", leads: 103, cpl: 184, spend: 18949,
+    esp: [41, 17, 21, 8, 16] },
+  { semana: "23/03–31/03", data: "2026-03-23", leads: 131, cpl: 186, spend: 24364,
+    esp: [54, 21, 27, 11, 21] },
   // Abril: dados reais do CSV (01/04–05/04)
-  // Endo 112, Gastro 11, Hepato 38, Colo 0, Cirurgia 12
   { semana: "01/04–05/04", data: "2026-04-01", leads: 173, cpl: 90, spend: 15611,
     esp: [112, 11, 38, 0, 12] }
 ];
 
-// Dados reais por especialidade — período completo 01/03–05/04
-const DADOS_REAIS_ESPECIALIDADES = {
-  periodo: { inicio: '2026-03-01', fim: '2026-04-05' },
-  especialidades: ['Endoscopia', 'Gastroenterologia', 'Hepatologia', 'Coloproctologia', 'Cirurgia'],
-  leads:  [285, 82, 125, 32, 80],
-  spend:  [23069.61, 17271.76, 24634.97, 6146.29, 22785.51],
-  cpl:    [80.95, 210.63, 197.08, 192.07, 284.82]
+// Dados reais por especialidade por período
+const DADOS_REAIS_POR_PERIODO = {
+  // Março puro
+  marco: {
+    periodo: { inicio: '2026-03-01', fim: '2026-03-31' },
+    leads:  [177, 72, 89, 33, 69],
+    spend:  [18064.01, 14286.30, 20970.90, 6146.29, 19535.64],
+    cpl:    [102.06, 198.42, 235.63, 186.25, 283.13]
+  },
+  // Abril (01–05)
+  abril: {
+    periodo: { inicio: '2026-04-01', fim: '2026-04-05' },
+    leads:  [112, 11, 38, 0, 12],
+    spend:  [5005.63, 2985.52, 3664.07, 0, 3249.88],
+    cpl:    [44.69, 271.41, 96.42, 0, 270.82]
+  },
+  // Total
+  total: {
+    periodo: { inicio: '2026-03-01', fim: '2026-04-05' },
+    leads:  [285, 82, 125, 32, 80],
+    spend:  [23069.61, 17271.76, 24634.97, 6146.29, 22785.51],
+    cpl:    [80.95, 210.63, 197.08, 192.07, 284.82]
+  }
 };
 
 const ESPECIALIDADES = ['Endoscopia', 'Gastroenterologia', 'Hepatologia', 'Coloproctologia', 'Cirurgia'];
@@ -434,13 +450,25 @@ function filtrarDados(dataInicio, dataFim) {
   });
 }
 
-function usarDadosReaisEspecialidades(dataInicio, dataFim) {
-  // Verifica se o período selecionado corresponde ao período dos dados reais do CSV
-  const inicio = new Date(dataInicio);
-  const fim = new Date(dataFim);
-  const realInicio = new Date(DADOS_REAIS_ESPECIALIDADES.periodo.inicio);
-  const realFim = new Date(DADOS_REAIS_ESPECIALIDADES.periodo.fim);
-  return inicio <= realInicio && fim >= realFim;
+function obterDadosReaisEspecialidades(dataInicio, dataFim) {
+  // Verifica se o período selecionado corresponde a um dos períodos com dados reais
+  const inicio = dataInicio;
+  const fim = dataFim;
+  
+  // Março puro
+  if (inicio <= '2026-03-01' && fim >= '2026-03-31' && fim < '2026-04-01') {
+    return DADOS_REAIS_POR_PERIODO.marco;
+  }
+  // Abril puro
+  if (inicio >= '2026-04-01' && fim >= '2026-04-05') {
+    return DADOS_REAIS_POR_PERIODO.abril;
+  }
+  // Total março + abril
+  if (inicio <= '2026-03-01' && fim >= '2026-04-05') {
+    return DADOS_REAIS_POR_PERIODO.total;
+  }
+  
+  return null;
 }
 
 function atualizarDashboard() {
@@ -467,11 +495,11 @@ function atualizarDashboard() {
   // Dados de especialidade — usar dados reais do CSV quando possível
   let espLeads, espSpend, espCpl;
   
-  if (usarDadosReaisEspecialidades(dataInicio, dataFim)) {
-    // Período cobre março inteiro: usar dados exatos do CSV
-    espLeads = DADOS_REAIS_ESPECIALIDADES.leads;
-    espSpend = DADOS_REAIS_ESPECIALIDADES.spend;
-    espCpl = DADOS_REAIS_ESPECIALIDADES.cpl.map(v => Math.round(v));
+  const dadosReais = obterDadosReaisEspecialidades(dataInicio, dataFim);
+  if (dadosReais) {
+    espLeads = dadosReais.leads;
+    espSpend = dadosReais.spend;
+    espCpl = dadosReais.cpl.map(v => Math.round(v));
   } else {
     // Período parcial: agregar das semanas filtradas
     const numEsp = ESPECIALIDADES.length;
