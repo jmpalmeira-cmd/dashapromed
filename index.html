@@ -1,4 +1,3 @@
-index.html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -286,7 +285,7 @@ index.html
   <div class="kpi-grid">
     <div class="kpi-card blue">
       <div class="kpi-label">Leads Totais</div>
-      <div class="kpi-value" id="totalLeads">561</div>
+      <div class="kpi-value" id="totalLeads">613</div>
       <div class="kpi-sub">Período selecionado</div>
     </div>
     <div class="kpi-card green">
@@ -296,7 +295,7 @@ index.html
     </div>
     <div class="kpi-card orange">
       <div class="kpi-label">CPL Médio</div>
-      <div class="kpi-value" id="cplMedio">R$ 172</div>
+      <div class="kpi-value" id="cplMedio">R$ 158</div>
       <div class="kpi-sub">Custo por lead</div>
     </div>
     <div class="kpi-card red">
@@ -363,25 +362,53 @@ index.html
 
 </div>
 
-<div class="footer">Dashboard de Tráfego — Apromed 2026 · Dados consolidados de ambas as contas Meta Ads · Atualizado em 05/04/2026</div>
+<div class="footer">Dashboard de Tráfego — Apromed 2026 · Dados consolidados de ambas as contas Meta Ads · Atualizado em 06/04/2026</div>
 
 <script>
-// Dados de todas as semanas (janeiro a abril)
+// =====================================================================
+// DADOS ATUALIZADOS — Fonte: CSV Meta Ads (01/03/2026 a 05/04/2026)
+// =====================================================================
+
+// Dados históricos (jan-fev) mantidos + dados de março-abril atualizados com CSV real
 const TODAS_SEMANAS = [
+  // JANEIRO (dados históricos mantidos)
   { semana: "05/01–11/01", data: "2026-01-05", leads: 73, cpl: 72, spend: 5260, esp: [11, 9, 14, 5, 8] },
   { semana: "12/01–18/01", data: "2026-01-12", leads: 122, cpl: 87, spend: 10649, esp: [18, 15, 24, 9, 12] },
   { semana: "19/01–25/01", data: "2026-01-19", leads: 159, cpl: 109, spend: 17293, esp: [24, 19, 32, 12, 15] },
   { semana: "26/01–01/02", data: "2026-01-26", leads: 114, cpl: 193, spend: 21968, esp: [17, 13, 27, 10, 11] },
+  // FEVEREIRO (dados históricos mantidos)
   { semana: "02/02–08/02", data: "2026-02-02", leads: 76, cpl: 257, spend: 19568, esp: [11, 9, 14, 5, 8] },
   { semana: "09/02–15/02", data: "2026-02-09", leads: 129, cpl: 133, spend: 17125, esp: [19, 16, 26, 10, 13] },
   { semana: "16/02–22/02", data: "2026-02-16", leads: 43, cpl: 194, spend: 8362, esp: [6, 5, 10, 3, 5] },
   { semana: "23/02–01/03", data: "2026-02-23", leads: 59, cpl: 133, spend: 7872, esp: [9, 7, 12, 4, 6] },
-  { semana: "02/03–08/03", data: "2026-03-02", leads: 126, cpl: 111, spend: 14000, esp: [64, 18, 19, 6, 19] },
-  { semana: "09/03–15/03", data: "2026-03-09", leads: 90, cpl: 203, spend: 18300, esp: [45, 13, 14, 4, 14] },
-  { semana: "16/03–22/03", data: "2026-03-16", leads: 108, cpl: 188, spend: 20300, esp: [55, 15, 17, 5, 16] },
-  { semana: "23/03–29/03", data: "2026-03-23", leads: 92, cpl: 227, spend: 20900, esp: [46, 13, 14, 5, 14] },
-  { semana: "30/03–05/04", data: "2026-03-30", leads: 145, cpl: 159, spend: 23000, esp: [73, 21, 23, 8, 20] }
+  // =====================================================================
+  // MARÇO–ABRIL: Dados reais extraídos do CSV Meta Ads (v2)
+  // Total período: 613 leads | R$ 96.822 invest | CPL R$ 157,95
+  // Especialidades reais: Endo 285, Gastro 82, Hepato 125, Colo 32, Cirurgia 80 (inclui CAD), Rmkt 9
+  // Distribuição semanal proporcional ao peso de cada semana (~5 semanas)
+  // =====================================================================
+  { semana: "02/03–08/03", data: "2026-03-02", leads: 122, cpl: 152, spend: 18541,
+    esp: [57, 16, 25, 6, 16] },
+  { semana: "09/03–15/03", data: "2026-03-09", leads: 107, cpl: 166, spend: 17762,
+    esp: [50, 14, 22, 6, 14] },
+  { semana: "16/03–22/03", data: "2026-03-16", leads: 128, cpl: 153, spend: 19584,
+    esp: [59, 17, 26, 7, 17] },
+  { semana: "23/03–29/03", data: "2026-03-23", leads: 110, cpl: 162, spend: 17820,
+    esp: [52, 15, 22, 6, 14] },
+  { semana: "30/03–05/04", data: "2026-03-30", leads: 146, cpl: 158, spend: 23115,
+    esp: [67, 20, 30, 7, 19] }
 ];
+
+// Dados reais por especialidade (do CSV v2) — usados nos gráficos de especialidade
+// quando o período selecionado cobre março inteiro
+// CAD reclassificado como Cirurgia: 72 + 8 = 80 leads | R$ 18.854,86 + R$ 3.930,65 = R$ 22.785,51
+const DADOS_REAIS_ESPECIALIDADES = {
+  periodo: { inicio: '2026-03-01', fim: '2026-04-05' },
+  especialidades: ['Endoscopia', 'Gastroenterologia', 'Hepatologia', 'Coloproctologia', 'Cirurgia'],
+  leads:  [285, 82, 125, 32, 80],
+  spend:  [23069.61, 17271.76, 24634.97, 6146.29, 22785.51],
+  cpl:    [80.95, 210.63, 197.08, 192.07, 284.82]
+};
 
 const ESPECIALIDADES = ['Endoscopia', 'Gastroenterologia', 'Hepatologia', 'Coloproctologia', 'Cirurgia'];
 const gridColor = 'rgba(148, 163, 184, 0.1)';
@@ -397,9 +424,22 @@ function filtrarDados(dataInicio, dataFim) {
   const fim = new Date(dataFim);
   
   return TODAS_SEMANAS.filter(s => {
-    const data = new Date(s.data);
-    return data >= inicio && data <= fim;
+    const semanaInicio = new Date(s.data);
+    const semanaFim = new Date(s.data);
+    semanaFim.setDate(semanaFim.getDate() + 6); // cada semana cobre 7 dias
+    
+    // A semana aparece se houver qualquer interseção com o período filtrado
+    return semanaInicio <= fim && semanaFim >= inicio;
   });
+}
+
+function usarDadosReaisEspecialidades(dataInicio, dataFim) {
+  // Verifica se o período selecionado corresponde ao período dos dados reais do CSV
+  const inicio = new Date(dataInicio);
+  const fim = new Date(dataFim);
+  const realInicio = new Date(DADOS_REAIS_ESPECIALIDADES.periodo.inicio);
+  const realFim = new Date(DADOS_REAIS_ESPECIALIDADES.periodo.fim);
+  return inicio <= realInicio && fim >= realFim;
 }
 
 function atualizarDashboard() {
@@ -423,18 +463,29 @@ function atualizarDashboard() {
   const cpls = dadosFiltrados.map(d => d.cpl);
   const spends = dadosFiltrados.map(d => d.spend);
   
-  // Agregar especialidades
-  const espLeads = [0, 0, 0, 0, 0];
-  const espSpend = [0, 0, 0, 0, 0];
+  // Dados de especialidade — usar dados reais do CSV quando possível
+  let espLeads, espSpend, espCpl;
   
-  dadosFiltrados.forEach(d => {
-    for (let i = 0; i < 5; i++) {
-      espLeads[i] += d.esp[i];
-      espSpend[i] += d.spend * (d.esp[i] / d.leads);
-    }
-  });
-  
-  const espCpl = espLeads.map((l, i) => l > 0 ? Math.round(espSpend[i] / l) : 0);
+  if (usarDadosReaisEspecialidades(dataInicio, dataFim)) {
+    // Período cobre março inteiro: usar dados exatos do CSV
+    espLeads = DADOS_REAIS_ESPECIALIDADES.leads;
+    espSpend = DADOS_REAIS_ESPECIALIDADES.spend;
+    espCpl = DADOS_REAIS_ESPECIALIDADES.cpl.map(v => Math.round(v));
+  } else {
+    // Período parcial: agregar das semanas filtradas
+    const numEsp = ESPECIALIDADES.length;
+    espLeads = new Array(numEsp).fill(0);
+    espSpend = new Array(numEsp).fill(0);
+    
+    dadosFiltrados.forEach(d => {
+      for (let i = 0; i < numEsp; i++) {
+        espLeads[i] += d.esp[i] || 0;
+        espSpend[i] += d.leads > 0 ? d.spend * ((d.esp[i] || 0) / d.leads) : 0;
+      }
+    });
+    
+    espCpl = espLeads.map((l, i) => l > 0 ? Math.round(espSpend[i] / l) : 0);
+  }
   
   // Atualizar KPIs
   const totalLeads = leads.reduce((a, b) => a + b, 0);
@@ -547,7 +598,7 @@ function atualizarDashboard() {
     options: {
       indexAxis: 'y',
       responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.95)', padding: 12, callbacks: { label: ctx => ` R$ ${ctx.raw.toLocaleString('pt-BR')}` } } },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.95)', padding: 12, callbacks: { label: ctx => ` R$ ${Math.round(ctx.raw).toLocaleString('pt-BR')}` } } },
       scales: { x: { grid: { color: gridColor, drawBorder: false }, ticks: { callback: v => 'R$' + v.toLocaleString('pt-BR') } }, y: { grid: { display: false } } }
     }
   });
@@ -574,4 +625,3 @@ document.getElementById('dateTo')?.addEventListener('change', atualizarDashboard
 </script>
 </body>
 </html>
-Automação Meta Ads: Validação e Relatório de Performance - Manus
