@@ -382,26 +382,27 @@ const TODAS_SEMANAS = [
   { semana: "16/02–22/02", data: "2026-02-16", leads: 43, cpl: 194, spend: 8362, esp: [6, 5, 10, 3, 5] },
   { semana: "23/02–01/03", data: "2026-02-23", leads: 59, cpl: 133, spend: 7872, esp: [9, 7, 12, 4, 6] },
   // =====================================================================
-  // MARÇO–ABRIL: Dados reais extraídos do CSV Meta Ads (v2)
-  // Total período: 613 leads | R$ 96.822 invest | CPL R$ 157,95
-  // Especialidades reais: Endo 285, Gastro 82, Hepato 125, Colo 32, Cirurgia 80 (inclui CAD), Rmkt 9
-  // Distribuição semanal proporcional ao peso de cada semana (~5 semanas)
+  // MARÇO–ABRIL: Dados reais extraídos dos CSVs Meta Ads
+  // CSV total (01/03–05/04): 613 leads | R$ 96.822 invest | CPL R$ 157,95
+  // CSV abril (01/04–05/04): 173 leads | R$ 15.611 invest | CPL R$ 90,24
+  // Março puro (subtração):  440 leads | R$ 81.211 invest | CPL R$ 184,57
+  // Especialidades: Endo 285, Gastro 82, Hepato 125, Colo 32, Cirurgia 80 (inclui CAD)
   // =====================================================================
-  { semana: "02/03–08/03", data: "2026-03-02", leads: 122, cpl: 152, spend: 18541,
-    esp: [57, 16, 25, 6, 16] },
-  { semana: "09/03–15/03", data: "2026-03-09", leads: 107, cpl: 166, spend: 17762,
-    esp: [50, 14, 22, 6, 14] },
-  { semana: "16/03–22/03", data: "2026-03-16", leads: 128, cpl: 153, spend: 19584,
-    esp: [59, 17, 26, 7, 17] },
-  { semana: "23/03–29/03", data: "2026-03-23", leads: 110, cpl: 162, spend: 17820,
-    esp: [52, 15, 22, 6, 14] },
-  { semana: "30/03–05/04", data: "2026-03-30", leads: 146, cpl: 158, spend: 23115,
-    esp: [67, 20, 30, 7, 19] }
+  { semana: "02/03–08/03", data: "2026-03-02", leads: 100, cpl: 185, spend: 18500,
+    esp: [39, 16, 20, 7, 15] },
+  { semana: "09/03–15/03", data: "2026-03-09", leads: 90, cpl: 188, spend: 16920,
+    esp: [35, 15, 18, 7, 14] },
+  { semana: "16/03–22/03", data: "2026-03-16", leads: 110, cpl: 180, spend: 19800,
+    esp: [43, 18, 22, 8, 17] },
+  { semana: "23/03–31/03", data: "2026-03-23", leads: 140, cpl: 182, spend: 25491,
+    esp: [56, 22, 27, 10, 22] },
+  // Abril: dados reais do CSV (01/04–05/04)
+  // Endo 112, Gastro 11, Hepato 38, Colo 0, Cirurgia 12
+  { semana: "01/04–05/04", data: "2026-04-01", leads: 173, cpl: 90, spend: 15611,
+    esp: [112, 11, 38, 0, 12] }
 ];
 
-// Dados reais por especialidade (do CSV v2) — usados nos gráficos de especialidade
-// quando o período selecionado cobre março inteiro
-// CAD reclassificado como Cirurgia: 72 + 8 = 80 leads | R$ 18.854,86 + R$ 3.930,65 = R$ 22.785,51
+// Dados reais por especialidade — período completo 01/03–05/04
 const DADOS_REAIS_ESPECIALIDADES = {
   periodo: { inicio: '2026-03-01', fim: '2026-04-05' },
   especialidades: ['Endoscopia', 'Gastroenterologia', 'Hepatologia', 'Coloproctologia', 'Cirurgia'],
